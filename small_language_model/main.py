@@ -2,18 +2,20 @@ import gradio as gr
 import ollama
 
 with gr.Blocks() as demo:
+    chat_context = []
     chatbot = gr.Chatbot(type="messages", height=300)
     msg = gr.Textbox()
 
 
     def add_message(user_message, chat_history):
+        chat_context.append({"role": "user", "content": user_message})
         return "", chat_history + [{"role": "user", "content": user_message}]
 
 
     def respond(chat_history):
         stream = ollama.chat(
             model="qwen2.5:0.5b",
-            messages=[{"role": "user", "content": chat_history[-1]["content"]}],
+            messages=chat_context,
             stream=True
         )
 
@@ -21,6 +23,7 @@ with gr.Blocks() as demo:
         for chunk in stream:
             chat_history[-1]["content"] += chunk["message"]["content"]
             yield chat_history
+        chat_context.append({"role": "assistant", "content": chat_history[-1]["content"]})
 
 
     msg.submit(add_message, [msg, chatbot], [msg, chatbot]).then(
