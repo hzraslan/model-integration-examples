@@ -23,7 +23,7 @@ with gr.Blocks() as demo:
         for chunk in stream:
             chat_history[-1]["content"] += chunk["message"]["content"]
             yield chat_history
-        chat_context.append({"role": "assistant", "content": chat_history[-1]["content"]})
+        # chat_context.append({"role": "assistant", "content": chat_history[-1]["content"]})
 
 
     msg.submit(add_message, [msg, chatbot], [msg, chatbot]).then(
